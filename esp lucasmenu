@@ -1,0 +1,80 @@
+local function API_Check()
+    if Drawing == nil then
+        return "No"
+    else
+        return "Yes"
+    end
+end
+
+local Find_Required = API_Check()
+if Find_Required == "No" then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Exunys Developer";
+        Text = "ESP script could not be loaded because your exploit is unsupported.";
+        Duration = math.huge;
+        Button1 = "OK"
+    })
+    return
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+-- Configurações do ESP
+_G.ESPVisible = true
+_G.BoxColor = Color3.fromRGB(255, 80, 10)
+_G.LineColor = Color3.fromRGB(0, 255, 0)
+_G.TextColor = Color3.fromRGB(255, 255, 255)
+_G.LineThickness = 2
+_G.BoxThickness = 2
+_G.TextSize = 18
+
+local function CreateESP()
+    for _, v in next, Players:GetPlayers() do
+        if v.Name ~= Players.LocalPlayer.Name then
+            local Box = Drawing.new("Square")
+            local Line = Drawing.new("Line")
+            local Name = Drawing.new("Text")
+
+            RunService.RenderStepped:Connect(function()
+                if workspace:FindFirstChild(v.Name) ~= nil and workspace[v.Name]:FindFirstChild("HumanoidRootPart") ~= nil then
+                    local Vector, OnScreen = Camera:WorldToViewportPoint(workspace[v.Name].HumanoidRootPart.Position)
+
+                    if OnScreen then
+                        Box.Size = Vector2.new(50, 100)
+                        Box.Position = Vector2.new(Vector.X - 25, Vector.Y - 50)
+                        Box.Color = _G.BoxColor
+                        Box.Thickness = _G.BoxThickness
+                        Box.Visible = _G.ESPVisible
+
+                        Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                        Line.To = Vector2.new(Vector.X, Vector.Y)
+                        Line.Color = _G.LineColor
+                        Line.Thickness = _G.LineThickness
+                        Line.Visible = _G.ESPVisible
+
+                        Name.Text = v.Name
+                        Name.Position = Vector2.new(Vector.X, Vector.Y - 60)
+                        Name.Color = _G.TextColor
+                        Name.Size = _G.TextSize
+                        Name.Center = true
+                        Name.Outline = true
+                        Name.Visible = _G.ESPVisible
+                    else
+                        Box.Visible = false
+                        Line.Visible = false
+                        Name.Visible = false
+                    end
+                else
+                    Box.Visible = false
+                    Line.Visible = false
+                    Name.Visible = false
+                end
+            end)
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(CreateESP)
+CreateESP()
